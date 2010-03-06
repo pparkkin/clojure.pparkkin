@@ -18,23 +18,25 @@
   (assoc g :nodes (conj (:nodes g) n)))
 
 (defn add-nodes
-  "Add a collection of nodes to a graph"
+  "Add a collection of nodes to a graph
+  Provided as either a collection of nodes or as an amount and a
+  function that will provide the nodes."
   ([g ns]
      (assoc g :nodes (clojure.set/union (:nodes g) (set ns))))
   ([g n f]
      (add-nodes g (map f (range n)))))
 
-;; Note on removing nodes: "Sets support 'removal' with disj"
-
 (defn clear-nodes
   "Clear all nodes"
   [g]
-  (assoc g :nodes #{}))
+  (struct weighted-directed-graph #{} {}))
 
 (defn get-incidences
   "Get the incidences of a node"
   [g n]
-  ((:incidences g) n))
+  (if (:incidences g)
+    ((:incidences g) n)
+    #{}))
 
 (defn add-edge
   "Add an edge from a node to another node with a weight"
@@ -59,6 +61,8 @@
                       (map (fn [n]
                              [n (clojure.set/union
                                  (set (get-incidences g n))
+                                 ;; the following could probably be
+                                 ;; replaced by a reduce
                                  (into #{}
                                        (filter (fn [x]
                                                  (not (nil? x)))
