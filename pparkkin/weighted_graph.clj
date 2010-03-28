@@ -12,19 +12,31 @@
   :to      ; node the incidence is pointing to
   :weight) ; weight of edge
 
+(defn get-nodes
+  "Get the nodes of a graph"
+  [g]
+  (:nodes g))
+
 (defn add-node
   "Add a node to a graph"
   [g n]
-  (assoc g :nodes (conj (:nodes g) n)))
+  (assoc g :nodes (conj (get-nodes g) n)))
 
 (defn add-nodes
   "Add a collection of nodes to a graph
   Provided as either a collection of nodes or as an amount and a
   function that will provide the nodes."
   ([g ns]
-     (assoc g :nodes (clojure.set/union (:nodes g) (set ns))))
+     (assoc g :nodes (clojure.set/union (get-nodes g) (set ns))))
   ([g n f]
      (add-nodes g (map f (range n)))))
+
+(defn remove-node
+  "Remove a node from a graph"
+  ([g n]
+     (assoc g :nodes (filter (fn [k]
+                               (not= k n))
+                             (get-nodes g)))))
 
 (defn clear-nodes
   "Clear all nodes"
@@ -48,7 +60,7 @@
                                   (conj (set (get-incidences g n))
                                         (struct incidence to weight))
                                   (set (get-incidences g n)))])
-                           (:nodes g)))))
+                           (get-nodes g)))))
 
 (defn add-edges
   "Add a number of edges at once
@@ -71,8 +83,17 @@
                                                         (when w
                                                           (struct incidence
                                                                   k w))))
-                                                    (:nodes g)))))])
-                           (:nodes g)))))
+                                                    (get-nodes g)))))])
+                           (get-nodes g)))))
+
+(defn filter-edges
+  "Filter for the edges of a graph"
+  [g pred]
+  (assoc g :incidences
+         (into {}
+               (map (fn [[n is]]
+                      [n (into #{} (filter pred is))])
+                    (:incidences g)))))
 
 (defn clear-edges
   "Clear all edges"
