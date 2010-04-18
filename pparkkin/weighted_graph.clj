@@ -31,17 +31,27 @@
   ([g n f]
      (add-nodes g (map f (range n)))))
 
-(defn remove-node
-  "Remove a node from a graph"
-  ([g n]
-     (assoc g :nodes (filter (fn [k]
-                               (not= k n))
-                             (get-nodes g)))))
+;; This doesn't work: The incidences (edges) connected to the node
+;; aren't removed
+;; TODO: Fix
+;(defn remove-node
+;  "Remove a node from a graph"
+;  ([g n]
+;     (assoc g :nodes (filter (fn [k]
+;                               (not= k n))
+;                             (get-nodes g)))))
 
 (defn clear-nodes
   "Clear all nodes"
   [g]
   (struct weighted-directed-graph #{} {}))
+
+(defn map-nodes
+  "Map f to all nodes of g"
+  [f g]
+  (assoc g :nodes
+         (into #{}
+               (map f (:nodes g)))))
 
 (defn get-incidences
   "Get the incidences of a node"
@@ -99,6 +109,16 @@
   "Clear all edges"
   [g]
   (assoc g :incidences {}))
+
+(defn map-edges
+  "Map f to all edges of g"
+  [f g]
+  (assoc g :incidences
+         (into {}
+               (map (fn [[n i]]
+                      [n (into #{}
+                               (map f i))])
+                    (:incidences g)))))
 
 
 
