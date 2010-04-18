@@ -9,6 +9,7 @@
   :incidences) ; a map from nodes to incidences ({})
 
 (defstruct incidence
+  :from    ; node the incidence is pointing from
   :to      ; node the incidence is pointing to
   :weight) ; weight of edge
 
@@ -68,7 +69,7 @@
                       (map (fn [n]
                              [n (if (= n from)
                                   (conj (set (get-incidences g n))
-                                        (struct incidence to weight))
+                                        (struct incidence from to weight))
                                   (set (get-incidences g n)))])
                            (get-nodes g)))))
 
@@ -92,7 +93,7 @@
                                                       (let [w (f n k)]
                                                         (when w
                                                           (struct incidence
-                                                                  k w))))
+                                                                  n k w))))
                                                     (get-nodes g)))))])
                            (get-nodes g)))))
 
