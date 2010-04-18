@@ -32,12 +32,14 @@
 
 (defn draw-edge
   "Draw an edge on a Graphics panel."
-  [#^Graphics g vf vt s]
+  [#^Graphics g nf vt s]
   (let [offset (/ (:vertex-diameter s) 2)
-        vt (:to vt)]
-    (.setColor g (:edge-color s))
-    (.drawLine g (+ (:x vf) offset) (+ (:y vf) offset)
-                 (+ (:x vt) offset) (+ (:y vt) offset))))
+        nt (:to vt)]
+    (.setColor g
+               (or (:color vt)
+                   (:edge-color s)))
+    (.drawLine g (+ (:x nf) offset) (+ (:y nf) offset)
+                 (+ (:x nt) offset) (+ (:y nt) offset))))
 
 (defn draw-edges
   "Draw all the edges from a vertex on a Graphics panel."
@@ -48,9 +50,13 @@
 (defn draw-vertex
   "Draw a vertex on a Graphics panel."
   [#^Graphics g v s]
-  (.setColor g (:vertex-fill-color s))
+  (.setColor g
+             (or (:fill-color v)
+                 (:vertex-fill-color s)))
   (.fillOval g (:x v) (:y v) (:vertex-diameter s) (:vertex-diameter s))
-  (.setColor g (:vertex-outline-color s))
+  (.setColor g
+             (or (:outline-color v)
+                 (:vertex-outline-color s)))
   (.drawOval g (:x v) (:y v) (:vertex-diameter s) (:vertex-diameter s)))
 
 (defn draw-graph
