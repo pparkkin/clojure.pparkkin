@@ -53,15 +53,17 @@
   (.setColor g (:vertex-outline-color s))
   (.drawOval g (:x v) (:y v) (:vertex-diameter s) (:vertex-diameter s)))
 
-(defn draw-vertices
+(defn draw-graph
   "Draw a graph on a Graphics panel.
   The graph and settings are assumed to be refs."
   [#^Graphics g graph settings]
-  (let [graph-snapshot (into {} @graph) ; create a snapshot of the graph
-        s (into {} @settings)] ; create a snapshot of the settings
+  (let [graph-snapshot (into {} @graph) ; grab a snapshot of the graph
+        s (into {} @settings)] ; grab a snapshot of the settings
     (doseq [n (:nodes graph-snapshot)]
-      (draw-vertex g n s)
-      (draw-edges g n (get-incidences graph-snapshot n) s))))
+      ;; draw the edges first so they don't show on top of the vertices
+      (draw-edges g n (get-incidences graph-snapshot n) s))
+    (doseq [n (:nodes graph-snapshot)]
+      (draw-vertex g n s))))
 
 (defn graph-panel-proxy
   "A proxy JPanel object to display a graph"
@@ -73,7 +75,7 @@
            (settings :height)))
     (paintComponent [g]
       (proxy-super paintComponent g)
-      (draw-vertices g graph settings))))
+      (draw-graph g graph settings))))
 
 (defn graph-panel
   "A panel to display a graph"
