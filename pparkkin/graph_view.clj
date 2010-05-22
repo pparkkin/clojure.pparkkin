@@ -63,8 +63,8 @@
   "Draw a graph on a Graphics panel.
   The graph and settings are assumed to be refs."
   [#^Graphics g graph settings]
-  (let [graph-snapshot (into {} @graph) ; grab a snapshot of the graph
-        s (into {} @settings)] ; grab a snapshot of the settings
+  (let [graph-snapshot @graph     ; grab a snapshot of the graph
+        s              @settings] ; grab a snapshot of the settings
     (doseq [n (:nodes graph-snapshot)]
       ;; draw the edges first so they don't show on top of the vertices
       (draw-edges g n (get-incidences graph-snapshot n) s))
