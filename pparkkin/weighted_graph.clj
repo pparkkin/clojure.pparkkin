@@ -47,6 +47,8 @@
   [g]
   (struct weighted-directed-graph #{} {}))
 
+;; This should not be used to change the graph, because incidences
+;; are not updated!
 (defn map-nodes
   "Map f to all nodes of g"
   [f g]
