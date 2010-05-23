@@ -6,9 +6,10 @@
 
 ;; TODO: Make this not be an ugly hack
 
-(defn- cmp-distance
+(defn cmp-with-inf
   "A simple function to compare two numbers.
-  The nil value will always be > any other value"
+  The nil value will always be > any other value,
+  i.e. positive infinity"
   [a b]
   (cond
     (nil? a)
@@ -19,20 +20,23 @@
     (compare a b)))
 
 (defn- cmp-distances
+  "Compare two distance structures.
+  Visited distances are always \"bigger\""
   [a b]
   (cond
     (:visited a)
     (if (:visited b) ; both visited
-      (cmp-distance (:distance a)
+      (cmp-with-inf (:distance a)
                     (:distance b))
       1) ; a only visited
     (:visited b) ; b only visited
     -1
     true ; neither visited
-    (cmp-distance (:distance a)
+    (cmp-with-inf (:distance a)
                   (:distance b))))
 
 (defn- init-distance-list
+  "Initialize a list of distance structures from a graph"
   [g r]
   (sort cmp-distances
         (map (fn [n]
@@ -46,6 +50,7 @@
              (:nodes g))))
 
 (defn- select-distance
+  "Find the distance structure for a node"
   [n ds]
   (first
    (filter (fn [d]
@@ -58,15 +63,15 @@
   (let [is (get-incidences g n)    ; edges from the node
         nd (select-distance n ds)] ; the distance for the node
     (conj
-     ;; käydään läpi edget (tietystä nodesta n)
+     ;; go through edges from a node n
      (map (fn [k]
-            ;; päivitetään edgen päässä olevan noden distance
-            ;; haetaan haluttu distance
+            ;; update the distance of the node at the other end
+            ;; an edge:
             (let [kd (select-distance (:to k) ds)]
-              ;; jos distancea ei ole tai jos distance sinne
-              ;; on lyhyempi käsittelyssä olevan noden kautta,
-              ;; päivitetään distance, muuten jätetään distance
-              ;; ennalleen
+              ;; get the distance of the node, and
+              ;; if the distance doesn't exist (is infinite, nil)
+              ;; of if the distance is less through this edge,
+              ;; update the distance, otherwise leave it alone
               (if (or (nil? kd)
                       (nil? (:distance kd))
                       (< (+ (:distance nd) (:weight k))
@@ -137,7 +142,17 @@
                     (contains? paths n))))
 
 (defn djikstra
+  "Return a new graph including only the edges comprising the shortest
+  paths from r to every other node"
   [g r]
   (trim-graph g
               (shortest-paths g r)))
-  
+
+;; Quick start:
+(comment
+  (use '(pparkkin djikstra))
+  (def r (first (:nodes @g)))
+  (def dg (djikstra @g r))
+  (def dg (ref dg))
+  (def ds (open-frame dg))
+  )
