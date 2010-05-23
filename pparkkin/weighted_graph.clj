@@ -32,25 +32,28 @@
   ([g n f]
      (add-nodes g (map f (range n)))))
 
-;; This doesn't work: The incidences (edges) connected to the node
-;; aren't removed
 ;; TODO: Fix
-;(defn remove-node
-;  "Remove a node from a graph"
-;  ([g n]
-;     (assoc g :nodes (filter (fn [k]
-;                               (not= k n))
-;                             (get-nodes g)))))
+(defn remove-node
+  "Remove a node from a graph
+
+  This should not be used on a graph with edges!
+  The incidences (edges) connected to the node aren't removed"
+  ([g n]
+     (assoc g :nodes (filter (fn [k]
+                               (not= k n))
+                             (get-nodes g)))))
 
 (defn clear-nodes
   "Clear all nodes"
   [g]
   (struct weighted-directed-graph #{} {}))
 
-;; This should not be used to change the graph, because incidences
-;; are not updated!
+;; TODO: Fix
 (defn map-nodes
-  "Map f to all nodes of g"
+  "Map f to all nodes of g
+
+  This should not be used to change a graph with edges!
+  The incidences (edges) of the graph are not updated"
   [f g]
   (assoc g :nodes
          (into #{}
