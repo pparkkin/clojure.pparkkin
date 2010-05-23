@@ -8,7 +8,8 @@
    (java.awt Color Dimension Graphics)
    (java.awt.event ComponentListener))
   (:use
-   (pparkkin weighted-graph)))
+   (pparkkin weighted-graph)
+   (clojure.contrib swing-utils)))
 
 ;; Settings for the width, the height and the colors used in a window
 (defstruct view-settings
@@ -112,6 +113,17 @@
 ;          (move-vertex v panel (.getX e) (.getY e)))))
       )))
 
+(defn add-component-listener
+  "Adds a component listener to component."
+  [component f & args]
+  (let [listener (proxy [ComponentListener] []
+                   (componentResized [event] (apply f event args))
+                   (componentMoved [event] (apply f event args))
+                   (componentShown [event] (apply f event args)))]
+    (.addComponentListener component listener)
+    listener))
+                                     
+
 (defn graph-frame
   "A frame to display a graph"
   [graph settings]
@@ -125,19 +137,13 @@
                            (:height new-state))))
     
     (doto frame
-      (.addComponentListener
-       (proxy [ComponentListener] []
-         (componentResized [e]
-                           (let [c (.getSource e)]
-                             (dosync
-                              (alter settings
-                                     assoc
-                                     :width (.getWidth c)
-                                     :height (.getHeight c)))))
-         ;; Need to define componentMoved and -Shown or I get errors
-         ;; about them being missing.
-         (componentMoved [e])
-         (componentShown [e])))
+      (add-component-listener (fn [e]
+                                (let [c (.getSource e)]
+                                  (dosync
+                                   (alter settings
+                                          assoc
+                                          :width (.getWidth c)
+                                          :height (.getHeight c))))))
       (.setDefaultCloseOperation JFrame/DISPOSE_ON_CLOSE)
       (.add (graph-panel graph settings))
       (.pack)
@@ -149,10 +155,22 @@
      (open-frame g default-settings))
   ([g s]
      (let [settings (ref (merge default-settings s))]
-       (javax.swing.SwingUtilities/invokeLater
-        (fn []
+       (do-swing
           (javax.swing.UIManager/setLookAndFeel
            (javax.swing.UIManager/getSystemLookAndFeelClassName))
-          (.setVisible (graph-frame g settings) true)))
+          (.setVisible (graph-frame g settings) true))
        settings)))
 
+;; Quick start:
+(comment
+  (use '(pparkkin weighted-graph))
+  (def g (struct weighted-directed-graph))
+  (use '(pparkkin point-graph graph-view))
+  (def g (random-fill g 50 (:width default-settings)
+                      (:height default-settings)))
+  (def g (ref g))
+  (def s (open-frame g))
+  (dosync (alter g connect-neighbors 100))
+  (import '(java.awt Color))
+  (dosync (alter s assoc :vertex-fill-color Color/RED))
+  )
