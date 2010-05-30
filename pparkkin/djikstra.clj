@@ -155,4 +155,8 @@
   (def dg (djikstra @g r))
   (def dg (ref dg))
   (def ds (open-frame dg))
+  (dosync (alter ds assoc :vertex-fill-color (fn [n]
+                                               (if (= n r)
+                                                 Color/RED
+                                                 Color/BLACK))))
   )
