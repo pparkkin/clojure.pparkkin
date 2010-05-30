@@ -12,35 +12,35 @@
    (clojure.contrib swing-utils)))
 
 ;; Settings for the width, the height and the colors used in a window
+;; For example values see default-settings below
 (defstruct view-settings
-  :width
-  :height
-  :vertex-diameter
-  :background-color
-  :vertex-fill-color
-  :vertex-outline-color
-  :edge-color)
+  :width  ;; width of the graph view
+  :height ;; height of the graph view
+  :background-color ;; background color of graph view
+  :vertex-diameter ;; size of vertices in graph view
+  :vertex-fill-color ;; fill color of vertices in graph view
+  :vertex-outline-color ;; outline color of vertices in graph view
+  :edge-color) ;; color of edges in graph view
 (def default-settings
      (struct-map view-settings
-       :width 480
+       :width  480
        :height 320
-       :vertex-diameter 10
        :background-color Color/WHITE
-       :vertex-fill-color Color/BLACK
-       :vertex-outline-color Color/GRAY
-       :edge-color Color/BLACK))
+       :vertex-diameter      (fn [vertex] 10)
+       :vertex-fill-color    (fn [vertex] Color/BLACK)
+       :vertex-outline-color (fn [vertex] Color/GRAY)
+       :edge-color           (fn [edge] Color/BLACK)))
 
 
 (defn draw-edge
   "Draw an edge on a Graphics panel."
   [#^Graphics g nf vt s]
-  (let [offset (/ (:vertex-diameter s) 2)
-        nt (:to vt)]
-    (.setColor g
-               (or (:color vt)
-                   (:edge-color s)))
-    (.drawLine g (+ (:x nf) offset) (+ (:y nf) offset)
-                 (+ (:x nt) offset) (+ (:y nt) offset))))
+  (let [nt (:to vt)
+        from-offset (/ ((:vertex-diameter s) nf) 2)
+        to-offset   (/ ((:vertex-diameter s) nt) 2)]
+    (.setColor g ((:edge-color s) vt))
+    (.drawLine g (+ (:x nf) from-offset) (+ (:y nf) from-offset)
+                 (+ (:x nt) to-offset)   (+ (:y nt) to-offset))))
 
 (defn draw-edges
   "Draw all the edges from a vertex on a Graphics panel."
@@ -51,14 +51,14 @@
 (defn draw-vertex
   "Draw a vertex on a Graphics panel."
   [#^Graphics g v s]
-  (.setColor g
-             (or (:fill-color v)
-                 (:vertex-fill-color s)))
-  (.fillOval g (:x v) (:y v) (:vertex-diameter s) (:vertex-diameter s))
-  (.setColor g
-             (or (:outline-color v)
-                 (:vertex-outline-color s)))
-  (.drawOval g (:x v) (:y v) (:vertex-diameter s) (:vertex-diameter s)))
+  (.setColor g ((:vertex-fill-color s) v))
+  (.fillOval g
+             (:x v) (:y v)
+             ((:vertex-diameter s) v) ((:vertex-diameter s) v))
+  (.setColor g ((:vertex-outline-color s) v))
+  (.drawOval g
+             (:x v) (:y v)
+             ((:vertex-diameter s) v) ((:vertex-diameter s) v)))
 
 (defn draw-graph
   "Draw a graph on a Graphics panel.
@@ -172,5 +172,5 @@
   (def s (open-frame g))
   (dosync (alter g connect-neighbors 100))
   (import '(java.awt Color))
-  (dosync (alter s assoc :vertex-fill-color Color/RED))
+  (dosync (alter s assoc :vertex-fill-color (fn [n] Color/RED)))
   )
