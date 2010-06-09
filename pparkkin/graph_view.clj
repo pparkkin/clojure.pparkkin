@@ -114,7 +114,14 @@
       )))
 
 (defn add-component-listener
-  "Adds a component listener to component."
+  "Adds a component listener to component. The listener responds to
+  componentResized, componentMoved and componentShown events. When an
+  event fires, f will be invoked with event as its first argument
+  followed by args.
+  The type of event can be determined by checking the values of the
+  fields COMPONENT_MOVED, COMPONENT_RESIZED and COMPONENT_SHOWN on the
+  ComponentEvent object passed to the function f.
+  Returns the listener."
   [component f & args]
   (let [listener (proxy [ComponentListener] []
                    (componentResized [event] (apply f event args))
@@ -173,4 +180,20 @@
   (dosync (alter g connect-neighbors 100))
   (import '(java.awt Color))
   (dosync (alter s assoc :vertex-fill-color (fn [n] Color/RED)))
+  )
+
+;; A kind of an interesting thing to do is compare how the shortest
+;; paths are different if you define the weight of an edge to be
+;; the square of the distance between the vertexes instead of the
+;; distance as is. It might more closely model something like a
+;; network of wi-fi links where signal strength decreases
+;; quadratically as the distance between network elements grows.
+(comment
+  (def g (connect-neighbors g
+                            (fn [d]
+                              (and (< d 10000)
+                                   (not= d 0)))
+                            (fn [p1 p2]
+                              (* (distance p1 p2)
+                                 (distance p1 p2)))))
   )
