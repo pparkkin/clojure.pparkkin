@@ -111,6 +111,6 @@ To try it out, follow the steps in the previous text to generate a new random gr
 
 You should end up with something like this:
 
-![](https://lh6.googleusercontent.com/-hlkklDV2dM8/TAIHdIBHpvI/AAAAAAAAAyc/pW7_5Wq0x_Y/s640/djikstra-screenshot-2.png)
+![](https://lh6.googleusercontent.com/-hlkklDV2dM8/TAIHdIBHpvI/AAAAAAAAAyc/pW7_5Wq0x_Y/s800/djikstra-screenshot-2.png)
 
 
