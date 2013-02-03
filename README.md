@@ -31,7 +31,7 @@ Changes to the ref are made inside a dosync block that makes sure the ref stays 
 Swing and Java Interop
 ----------------------
 
-The viewer GUI is written using [Swing](http://en.wikipedia.org/wiki/Swing_(Java)), Sun’s widget toolkit for Java. [Using Java libraries is made easy in Clojure](http://clojure.org/java_interop) and included is support for calling methods, creating objects, extending classes and anything you might need to work with tools written in Java.
+The viewer GUI is written using [Swing](http://en.wikipedia.org/wiki/Swing_(Java\)), Sun’s widget toolkit for Java. [Using Java libraries is made easy in Clojure](http://clojure.org/java_interop) and included is support for calling methods, creating objects, extending classes and anything you might need to work with tools written in Java.
 
 In the graph viewer I wrote functions that manipulate and return the objects I need for the GUI: The JFrame object is created and then manipulated in a doto block in the graph-frame function. For the JPanel object I use a proxy object to extend the class with my own methods for drawing the graph on the panel. The drawing functions take a Graphics object that they draw on, and the function definitions include type hints to avoid the performance hits that would otherwise be incurred from using reflection to dispatch the method.
 
